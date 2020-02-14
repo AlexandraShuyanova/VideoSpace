@@ -1,5 +1,4 @@
 import qbittorrentapi
-import os
 
 
 def auth():
@@ -15,6 +14,5 @@ def auth():
     return qbt_client
 
 
-def download(qbt_client, magnet):
-    save_directory = 'C:/webServer' + '/torrents'
-    return qbt_client.torrents_add(urls=magnet, save_path=save_directory)
+def download(qbt_client, path, magnet):
+    return qbt_client.torrents_add(urls=magnet, save_path=path)

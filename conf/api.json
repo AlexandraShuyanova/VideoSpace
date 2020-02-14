@@ -1,0 +1,4 @@
+{
+    "downloadFolder": "E:/DEV/nginx-1.17.8/html/torrents",
+    "serverAddress": "http://127.0.0.1/torrents"
+}

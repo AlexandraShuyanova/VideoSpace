@@ -7,8 +7,12 @@ from flask_cors import CORS
 from flask import json
 from flask import abort
 import torrent_api
+import utils
+
 app = Flask(__name__)
 CORS(app)
+auth = torrent_api.auth()
+downloadFolder, serverAddress = utils.read_config()
 
 
 @app.route('/')
@@ -27,11 +31,10 @@ def passage():
         new_file_name = file_name['film']
     else:
         return json.dumps({'message': 'Error!'}), 200, {'ContentType': 'application/json'}
-    folder = 'C:/webServer/torrents'
-    for element in os.scandir(folder):
+    for element in os.scandir(downloadFolder):
         if element.is_file():
             if element.name.startswith(new_file_name):
-                return json.dumps({'message': folder + '/' + element.name}), 200, {'ContentType': 'application/json'}
+                return json.dumps({'message': downloadFolder + '/' + element.name}), 200, {'ContentType': 'application/json'}
     return json.dumps({'message': 'Sorry, file is not found..('}), 200, {'ContentType': 'application/json'}
 
 
@@ -45,7 +48,7 @@ def download():
     if 'magnet' not in data:
         abort(400)
 
-    result = torrent_api.download(torrent_api.auth(), data['magnet'])
+    result = torrent_api.download(auth, downloadFolder, data['magnet'])
 
     if result == 'Ok.':
         return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
@@ -57,10 +60,9 @@ def download():
 def all_files():
     films_list = []
     i = 0
-    folder = 'C:/webServer/torrents'
-    for element in os.scandir(folder):
+    for element in os.scandir(downloadFolder):
         if element.is_file():
-            path = folder + '/' + element.name
+            path = serverAddress + '/' + element.name
             film_info = {'id': i, 'name': element.name, 'path': path, 'type': Path(path).suffix}
             films_list.append(film_info)
             i += 1
@@ -68,12 +70,5 @@ def all_files():
     return json.dumps({'films': films_list}, ensure_ascii=False), 200, {'ContentType': 'application/json'}
 
 
-
-
-
-
-
-
-
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port='5000')
+    app.run(host='0.0.0.0', port='5000')
